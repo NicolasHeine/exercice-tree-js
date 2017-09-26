@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bowling</title>
+    <script src="js/three.js"></script>
+    <script src="js/oimo.min.js"></script>
+    <script src="js/Stats.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src="js/STLLoader.js"></script>
+    <script src="js/dat.js"></script>
+    <style>
+        body{
+            background-color: black;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas{
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+<body>
+    <script>
+        var scene, camera, light, renderer, orbit, world, axes;
+
+        function init(){
+            // Scène
+            scene = new THREE.Scene();
+
+            // Moteur gravité
+            world = new OIMO.World({
+                timestep: 1/60,
+                iterations: 8,
+                broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
+                worldscale: 1, // scale full world
+                random: true,  // randomize sample
+                info: false,   // calculate statistic or not
+                gravity: [0,-9.8,0]
+            });
+
+            // Moteur de rendu WebGL
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000);
+            camera.position.set(-60, 15, 50);
+            camera.lookAt(0);
+            orbit = new THREE.OrbitControls(
+                camera,
+                renderer.domElement
+            );
+
+            // Axes
+            axes = new THREE.AxisHelper(1);
+            scene.add(axes);
+
+            // Lumière
+            light = new THREE.AmbientLight(0xffffff);
+            scene.add(light);
+        }
+
+        init();
+
+        // Mesh
+        var balle, sphere, plane, sol, quille1, quille2, quille3, quille4, quille5, quille6, quille7, quille8, quille9, quille10, pente, sol_pente;
+        var quilleP1 = '';
+        var quilleP2 = '';
+        var quilleP3 = '';
+        var quilleP4 = '';
+        var quilleP5 = '';
+        var quilleP6 = '';
+        var quilleP7 = '';
+        var quilleP8 = '';
+        var quilleP9 = '';
+        var quilleP10 = '';
+        var loader = new THREE.TextureLoader();
+        var stlLoader = new THREE.STLLoader();
+        function mesh(){
+            // Materiel
+            var textureBalle = loader.load('img/balle.jpg');
+            var matBalle = new THREE.MeshStandardMaterial({
+                color: 0xffaaff,
+                //map: textureBalle
+            });
+
+            // Boule
+            var balleObj = new THREE.SphereBufferGeometry(2, 100, 100);
+            balle = new THREE.Mesh(balleObj, matBalle);
+            balle.receiveShadow = true;
+            balle.castShadow = true;
+            balle.position.y = 50;
+            balle.position.x = -50;
+            scene.add(balle);
+            sphere = doPhysic('sphere', [2,2,2], [-50,49,0], [0,0,0], true, 20);
+
+            // Quilles
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille1 = new THREE.Mesh(geometry, material);
+                quille1.geometry.computeBoundingBox();
+                var all_size = quille1.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille1.castShadow = true;
+                quille1.receiveShadow = true;
+                scene.add(quille1);
+                quilleP1 = doPhysic('box', size, [0, 6, 0], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille2 = new THREE.Mesh(geometry, material);
+                quille2.geometry.computeBoundingBox();
+                var all_size = quille2.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille2.castShadow = true;
+                quille2.receiveShadow = true;
+                scene.add(quille2);
+                quilleP2 = doPhysic('box', size, [3, 6, 3], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille3 = new THREE.Mesh(geometry, material);
+                quille3.geometry.computeBoundingBox();
+                var all_size = quille3.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille3.castShadow = true;
+                quille3.receiveShadow = true;
+                scene.add(quille3);
+                quilleP3 = doPhysic('box', size, [3, 6, -3], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille4 = new THREE.Mesh(geometry, material);
+                quille4.geometry.computeBoundingBox();
+                var all_size = quille4.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille4.castShadow = true;
+                quille4.receiveShadow = true;
+                scene.add(quille4);
+                quilleP4 = doPhysic('box', size, [6, 6, 0], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille5 = new THREE.Mesh(geometry, material);
+                quille5.geometry.computeBoundingBox();
+                var all_size = quille5.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille5.castShadow = true;
+                quille5.receiveShadow = true;
+                scene.add(quille5);
+                quilleP5 = doPhysic('box', size, [6, 6, 6], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille6 = new THREE.Mesh(geometry, material);
+                quille6.geometry.computeBoundingBox();
+                var all_size = quille6.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille6.castShadow = true;
+                quille6.receiveShadow = true;
+                scene.add(quille6);
+                quilleP6 = doPhysic('box', size, [6, 6, -6], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille7 = new THREE.Mesh(geometry, material);
+                quille7.geometry.computeBoundingBox();
+                var all_size = quille7.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille7.castShadow = true;
+                quille7.receiveShadow = true;
+                scene.add(quille7);
+                quilleP7 = doPhysic('box', size, [9, 6, -3], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille8 = new THREE.Mesh(geometry, material);
+                quille8.geometry.computeBoundingBox();
+                var all_size = quille8.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille8.castShadow = true;
+                quille8.receiveShadow = true;
+                scene.add(quille8);
+                quilleP8 = doPhysic('box', size, [9, 6, 3], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille9 = new THREE.Mesh(geometry, material);
+                quille9.geometry.computeBoundingBox();
+                var all_size = quille9.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille9.castShadow = true;
+                quille9.receiveShadow = true;
+                scene.add(quille9);
+                quilleP9 = doPhysic('box', size, [9, 6, -9], [-90,0, 0], true, 1);
+            });
+            stlLoader.load('./file/quille.stl', function(geometry ){
+                var material = new THREE.MeshPhongMaterial({
+                    color: 0xff5533,
+                    specular: 0x111111,
+                    shininess: 200
+                });
+                quille10 = new THREE.Mesh(geometry, material);
+                quille10.geometry.computeBoundingBox();
+                var all_size = quille10.geometry.boundingBox;
+                var size = [all_size.max.x - all_size.min.x, all_size.max.y - all_size.min.y, all_size.max.z - all_size.min.z];
+                quille10.castShadow = true;
+                quille10.receiveShadow = true;
+                scene.add(quille10);
+                quilleP10 = doPhysic('box', size, [9, 6, 9], [-90,0, 0], true, 1);
+            });
+
+            // Sol
+            var geo = new THREE.BoxGeometry(100, 1, 30);
+            var mat = new THREE.MeshBasicMaterial({color: 0xaaaaaa});
+            plane = new THREE.Mesh(geo, mat);
+            plane.receiveShadow = true;
+            plane.castShadow = true;
+            scene.add(plane);
+            sol = doPhysic('box', [100,1,30], [0,1,0], [0,0,0], false, 1);
+
+            // Pente
+            var penteGeo = new THREE.BoxGeometry(20, 1, 30);
+            var penteMat = new THREE.MeshBasicMaterial({color: 0xaaaaaa});
+            pente = new THREE.Mesh(penteGeo, penteMat);
+            pente.receiveShadow = true;
+            pente.castShadow = true;
+            scene.add(pente);
+            sol_pente = doPhysic('box', [20,1,30], [-45,0,0], [0,0,-45], false, 1);
+        }
+
+        mesh();
+
+        // -- StatsHelper
+        var container = document.createElement('div');
+        document.body.appendChild(container);
+        stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        container.appendChild(stats.domElement);
+
+        function render(){
+            requestAnimationFrame(render);
+
+            update();
+
+            renderer.render(scene, camera);
+            stats.update();
+        }
+
+        render();
+
+        function update(){
+            world.step();
+            balle.position.copy(sphere.getPosition());
+            balle.quaternion.copy(sphere.getQuaternion());
+            plane.position.copy(sol.getPosition());
+            plane.quaternion.copy(sol.getQuaternion());
+            pente.position.copy(sol_pente.getPosition());
+            pente.quaternion.copy(sol_pente.getQuaternion());
+            if(quilleP1 !== ''){
+                quille1.position.copy(quilleP1.getPosition());
+                quille1.quaternion.copy(quilleP1.getQuaternion());
+            }
+            if(quilleP2 !== ''){
+                quille2.position.copy(quilleP2.getPosition());
+                quille2.quaternion.copy(quilleP2.getQuaternion());
+            }
+            if(quilleP3 !== ''){
+                quille3.position.copy(quilleP3.getPosition());
+                quille3.quaternion.copy(quilleP3.getQuaternion());
+            }
+            if(quilleP4 !== ''){
+                quille4.position.copy(quilleP4.getPosition());
+                quille4.quaternion.copy(quilleP4.getQuaternion());
+            }
+            if(quilleP5 !== ''){
+                quille5.position.copy(quilleP5.getPosition());
+                quille5.quaternion.copy(quilleP5.getQuaternion());
+            }
+            if(quilleP6 !== ''){
+                quille6.position.copy(quilleP6.getPosition());
+                quille6.quaternion.copy(quilleP6.getQuaternion());
+            }
+            if(quilleP7 !== ''){
+                quille7.position.copy(quilleP7.getPosition());
+                quille7.quaternion.copy(quilleP7.getQuaternion());
+            }
+            if(quilleP8 !== ''){
+                quille8.position.copy(quilleP8.getPosition());
+                quille8.quaternion.copy(quilleP8.getQuaternion());
+            }
+            if(quilleP9 !== ''){
+                quille9.position.copy(quilleP9.getPosition());
+                quille9.quaternion.copy(quilleP9.getQuaternion());
+            }
+            if(quilleP10 !== ''){
+                quille10.position.copy(quilleP10.getPosition());
+                quille10.quaternion.copy(quilleP10.getQuaternion());
+            }
+        }
+
+        function doPhysic($type, $size, $pos, $rot, $move, $density){
+            return world.add({
+                type: $type, // type of shape : sphere, box, cylinder
+                size: $size, // size of shape
+                pos: $pos, // start position in degree
+                rot: $rot, // start rotation in degree
+                move: $move, // dynamic or statique
+                density: $density,
+                friction: 0.2,
+                restitution: 0.2,
+                belongsTo: 1, // The bits of the collision groups to which the shape belongs.
+                collidesWith: 0xffffffff // The bits of the collision groups with which the shape collides.
+            });
+        }
+    </script>
+</body>
+</html>
